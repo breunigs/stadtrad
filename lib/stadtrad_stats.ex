@@ -74,29 +74,27 @@ defmodule StadtradStats do
       ON a.bike_id = b.bike_id AND a.timestamp < b.timestamp
       WHERE b.timestamp IS NULL")
 
+    lookup = Enum.into(current_positions,
+      HashDict.new,
+      fn x -> {x[:bike_id], x[:station_id]} end
+    )
+
+    :ok = Sqlitex.exec(db, "BEGIN TRANSACTION")
+
+    {:ok, stmt} = Sqlitex.Statement.prepare(db, "INSERT INTO history (station_id, bike_id, timestamp) VALUES (?1, ?2, ?3)")
+
     Enum.each(stations, fn(station) ->
       Enum.each(station.bikes, fn(bike_id) ->
-        # update_station(station.id, bike_id, db, ts)
+        if lookup[bike_id] != station.id do
+          Sqlitex.Statement.bind_values(stmt, [station.id, bike_id, ts])
+          Sqlitex.Statement.exec(stmt)
+        end
       end)
     end)
+
+    :ok = Sqlitex.exec(db, "COMMIT TRANSACTION")
+
     IO.puts "✓ write bike history"
-  end
-
-  defp update_station(new_station_id, bike_id, db, ts) do
-    [station_id: current_station_id] =
-      Sqlitex.query(db,
-        "SELECT station_id FROM history WHERE bike_id = ?1 ORDER BY timestamp DESC LIMIT 1",
-        bind: [bike_id]
-      ) |> hd
-    #TODO: handle if no result
-
-
-    if new_station_id != current_station_id do
-      Sqlitex.query(db,
-        "INSERT INTO history (station_id, bike_id, timestamp) VALUES (?1, ?2, ?3)",
-        bind: [new_station_id, bike_id, ts]
-      )
-    end
   end
 
   @spec unix_time :: integer
