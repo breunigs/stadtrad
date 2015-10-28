@@ -2,6 +2,7 @@ defmodule StadtradStats do
   use Application
 
   def start(_,_) do
+    SqliteSetup.create_tables
     retrieve
     Supervisor.start_link [], strategy: :one_for_one
   end
