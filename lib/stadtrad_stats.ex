@@ -58,7 +58,7 @@ defmodule StadtradStats do
 
     {:ok, stmt_bike_history} = Sqlitex.Statement.prepare(db, "INSERT INTO bike_count_history (station_id, timestamp, bike_count) VALUES (?1, ?2, ?3)")
     Enum.each(stations, fn(s) ->
-      Sqlitex.Statement.bind_values(stmt_stations, [s.id, ts, length(s.bikes)])
+      Sqlitex.Statement.bind_values(stmt_bike_history, [s.id, ts, length(s.bikes)])
       Sqlitex.Statement.exec(stmt_bike_history)
     end)
 
