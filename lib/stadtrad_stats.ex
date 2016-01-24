@@ -43,7 +43,7 @@ defmodule StadtradStats do
     a = Task.async fn -> write_basic_stats(stations, ts) end
     b = Task.async fn -> write_bike_history(stations, ts) end
     Task.await a
-    Task.await b
+    Task.await b, 30*1000
   end
 
   defp write_basic_stats(stations, ts) do
