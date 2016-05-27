@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="index, follow"/>
+  <link rel="stylesheet" href="leaflet/leaflet.css"/>
+  <style>
+    html, body, #map-canvas {
+      width: 100%;
+      height: 100%;
+      padding: 0;
+      margin: 0;
+    }
+  </style>
+  <script src="leaflet/leaflet.js"></script>
+  <script src="leaflet-heat.js"></script>
+  <script src="heatmap_all.js"></script><!-- data in variable x -->
+</head>
+<body>
+  <div class="heatmap" id="map-canvas">
+
+  </div>
+</html>
+
+<script>
+var baseLayer = L.tileLayer(
+  'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
+    attribution: '...',
+    maxZoom: 18
+  }
+);
+
+var cfg = {
+  // radius should be small ONLY if scaleRadius is true (or small radius is intended)
+  // if scaleRadius is false it will be the constant radius used in pixels
+  "radius": 2,
+  "maxOpacity": .8,
+  // scales the radius based on map zoom
+  "scaleRadius": true,
+  // if set to false the heatmap uses the global maximum for colorization
+  // if activated: uses the data maximum within the current map boundaries
+  //   (there will always be a red spot with useLocalExtremas true)
+  "useLocalExtrema": true,
+  // which field name in your data represents the latitude - default "lat"
+  latField: 'lat',
+  // which field name in your data represents the longitude - default "lng"
+  lngField: 'lng',
+  // which field name in your data represents the data value - default "value"
+  valueField: 'count'
+};
+
+
+
+var map = new L.Map('map-canvas', {
+  center: new L.LatLng(53.566972, 9.9860760),
+  zoom: 12,
+  layers: [baseLayer]
+});
+
+var heat = L.heatLayer(x[1453923904], {radius: 25}).addTo(map);
+</script>
