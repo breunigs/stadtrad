@@ -12,7 +12,7 @@ list.each.with_index do |file, idx|
 
   j = JSON.parse(Zlib::GzipReader.open(file).read) rescue next
   ts = File.basename(file, '.json').to_i
-  hourly = Time.at(ts).strftime('%a-%H')
+  hourly = Time.at(ts).strftime('%u-%H')
 
   stats[hourly] ||= {}
 

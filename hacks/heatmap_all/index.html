@@ -12,15 +12,29 @@
       padding: 0;
       margin: 0;
     }
+    #slider {
+      width: 20em;
+    }
+    #controls {
+      position: absolute;
+      top: 0.7em;
+      left: 3em;
+      z-index: 10000;
+      background: #fff;
+      border-radius: 4px;
+      box-shadow: 0 1px 5px rgba(0,0,0,0.65);
+    }
   </style>
   <script src="leaflet/leaflet.js"></script>
   <script src="leaflet-heat.js"></script>
-  <script src="heatmap_all.js"></script><!-- data in variable x -->
+  <script src="heatmap_grouped.js"></script><!-- data in variable x -->
 </head>
 <body>
-  <div class="heatmap" id="map-canvas">
-
+  <div id="controls">
+    <input id="slider" type="range" min="0" max="167" list="days" type="days"/>
+    <span id="date"></span>
   </div>
+  <div class="heatmap" id="map-canvas"></div>
 </html>
 
 <script>
@@ -31,32 +45,32 @@ var baseLayer = L.tileLayer(
   }
 );
 
-var cfg = {
-  // radius should be small ONLY if scaleRadius is true (or small radius is intended)
-  // if scaleRadius is false it will be the constant radius used in pixels
-  "radius": 2,
-  "maxOpacity": .8,
-  // scales the radius based on map zoom
-  "scaleRadius": true,
-  // if set to false the heatmap uses the global maximum for colorization
-  // if activated: uses the data maximum within the current map boundaries
-  //   (there will always be a red spot with useLocalExtremas true)
-  "useLocalExtrema": true,
-  // which field name in your data represents the latitude - default "lat"
-  latField: 'lat',
-  // which field name in your data represents the longitude - default "lng"
-  lngField: 'lng',
-  // which field name in your data represents the data value - default "value"
-  valueField: 'count'
-};
-
-
-
 var map = new L.Map('map-canvas', {
   center: new L.LatLng(53.566972, 9.9860760),
   zoom: 12,
   layers: [baseLayer]
 });
 
-var heat = L.heatLayer(x[1453923904], {radius: 25}).addTo(map);
+
+var heat,
+  mapper = Object.keys(x).sort(),
+  date   = document.getElementById('date'),
+  slider = document.getElementById('slider');
+
+slider.addEventListener("input", function() {
+  if(heat) {
+    map.removeLayer(heat);
+  }
+  var key = mapper[slider.value];
+  date.innerHTML = key;
+
+  if(!x[key].hasOwnProperty('_latlngs')) {
+    console.log('rendering: ' + key)
+    x[key] = L.heatLayer(x[key], {radius: 25});
+  }
+  heat = x[key].addTo(map);
+});
+
+
+
 </script>
