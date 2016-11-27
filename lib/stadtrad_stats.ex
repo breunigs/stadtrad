@@ -10,7 +10,7 @@ defmodule StadtradStats do
   @url 'https://stadtrad.hamburg.de/kundenbuchung/hal2ajax_process.php'
   @params 'mapstadt_id=75&verwaltungfirma=&centerLng=9.986872299999959&centerLat=53.56661530000001&searchmode=default&with_staedte=N&buchungsanfrage=N&bereich=2&ajxmod=hal2map&callee=getMarker&requester=index&webfirma_id=510'
   defp retrieve do
-    IO.puts "reading JSON…"
+    # IO.puts "reading JSON…"
 
     case :httpc.request(:post, {@url, [], 'application/x-www-form-urlencoded', @params}, [], []) do
       { :error, reason } -> exit reason
@@ -20,11 +20,12 @@ defmodule StadtradStats do
 
         ts = unix_time
 
-        IO.puts "writing…"
-        a = Task.async fn -> write_sqlite(body, ts) end
-        b = Task.async fn -> write_raw(body, ts) end
-        Task.await a
-        Task.await b
+        # IO.puts "writing…"
+        write_raw(body, ts)
+        # a = Task.async fn -> write_sqlite(body, ts) end
+        # b = Task.async fn -> write_raw(body, ts) end
+        # Task.await a
+        # Task.await b
       )
     end
   end
@@ -34,7 +35,7 @@ defmodule StadtradStats do
     {:ok, file} = File.open "raw/#{ts}.json.gz", [:write, :compressed]
     IO.binwrite file, data
     File.close file
-    IO.puts "✓ write raw"
+    # IO.puts "✓ write raw"
   end
 
   defp write_sqlite(json, ts) do
